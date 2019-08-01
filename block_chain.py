@@ -1,6 +1,8 @@
 import datetime
 import json
 import hashlib
+from time import time
+from uuid import uuid4
 
 
 class BlockChain(object):
@@ -51,3 +53,38 @@ class BlockChain(object):
     def last_block(self):
         # return the last block in the chain
         return self.chain[-1]
+
+    @staticmethod
+    def hash(block):
+        """
+        generate a SHA-256 value for the block
+        :param block: <dict> Block
+        :return: <str>
+        """
+        block_string = json.dumps(block, sort_keys=True).encode()
+        return hashlib.sha256(block_string).hexdigest()
+
+    def proof_of_work(self, last_proof):
+        """
+        simple proof of working algorithm
+        - find a number p which its hash(pp') contains 4 leading zero, where p is the
+        previous p'
+        - p is the previous proof and p' is the new  proof
+        :param last_proof:
+        :return:
+        """
+        proof = 0
+        while self.valid_proof(last_proof, proof) is False:
+            proof += 1
+
+    @staticmethod
+    def valid_proof(last_proof, proof):
+        """
+
+        :param last_proof:  int
+        :param proof:  int
+        :return: bool
+        """
+        guess = f'{last_proof}{proof}'.encode()
+        guess_hash = hashlib.sha256(guess).hexdigest()
+        return guess_hash[:4] == '0000'
